@@ -31,6 +31,27 @@ router.post('/close', function (request, response) {
 
 });
 
+router.post('/switch', function (request, response) {
+
+  const status = rpio.read(process.env.PIN);
+  let res = 'yet';
+
+  if (status === rpio.HIGH) {
+    rpio.write(process.env.PIN, rpio.LOW);
+    res = 'Open';
+
+  } else {
+    rpio.write(process.env.PIN, rpio.HIGH);
+    res = 'Close';
+  }
+
+  response.writeHead( 200, {
+    'Content-Type' : 'application/json; charset=utf-8'
+  });
+  response.end( JSON.stringify(res) );
+
+});
+
 const server = Http.createServer(function(request, response) {
   // router(req, res, finalhandler(req, res));
   router( request, response, function( error ) {
