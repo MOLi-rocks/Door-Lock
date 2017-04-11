@@ -1,17 +1,20 @@
-import Http from 'http';
-import Router from 'router';
-import BodyParser from 'body-parser';
-import rpio from 'rpio';
-import '../env.js';
+var Http = require('http');
+var Router = require('router');
+var BodyParser = require('body-parser');
+var rpio = require('rpio');
+const ENV = require('./env.js');
 
 let router = new Router();
 
-rpio.open(process.env.PIN, rpio.OUTPUT, rpio.HIGH);
+// set lock's pin. Default is lock
+rpio.open(ENV.PIN, rpio.OUTPUT, rpio.HIGH);
+
 router.use( BodyParser.json() );
 
+// unlock
 router.post('/open', function (request, response) {
 
-  rpio.write(process.env.PIN, rpio.LOW);
+  rpio.write(ENV.PIN, rpio.LOW);
 
   response.writeHead( 200, {
     'Content-Type' : 'application/json; charset=utf-8'
@@ -20,9 +23,10 @@ router.post('/open', function (request, response) {
 
 });
 
+// lock
 router.post('/close', function (request, response) {
 
-  rpio.write(process.env.PIN, rpio.HIGH);
+  rpio.write(ENV.PIN, rpio.HIGH);
 
   response.writeHead( 200, {
     'Content-Type' : 'application/json; charset=utf-8'
@@ -31,17 +35,17 @@ router.post('/close', function (request, response) {
 
 });
 
+// switch lock status
 router.post('/switch', function (request, response) {
-
-  const status = rpio.read(process.env.PIN);
+  const status = rpio.read(ENV.PIN);
   let res = 'yet';
 
   if (status === rpio.HIGH) {
-    rpio.write(process.env.PIN, rpio.LOW);
+    rpio.write(ENV.PIN, rpio.LOW);
     res = 'Open';
 
   } else {
-    rpio.write(process.env.PIN, rpio.HIGH);
+    rpio.write(ENV.PIN, rpio.HIGH);
     res = 'Close';
   }
 
@@ -52,8 +56,8 @@ router.post('/switch', function (request, response) {
 
 });
 
+// set api server
 const server = Http.createServer(function(request, response) {
-  // router(req, res, finalhandler(req, res));
   router( request, response, function( error ) {
     if ( !error ) {
       response.writeHead( 404 );
@@ -66,4 +70,4 @@ const server = Http.createServer(function(request, response) {
   });
 })
 
-server.listen(process.env.PORT);
+server.listen(ENV.PORT);
