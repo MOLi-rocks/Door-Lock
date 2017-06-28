@@ -1,34 +1,44 @@
-const express = require('express');
-const Http = require('http');
-const BodyParser = require('body-parser');
-const rpio = require('rpio');
+var Http = require('http');
+var Router = require('router');
+var BodyParser = require('body-parser');
+var rpio = require('rpio');
 const ENV = require('./env.js');
 
-let app = express();
+let router = new Router();
 
 // set lock's pin. Default is lock
 rpio.open(ENV.PIN, rpio.OUTPUT, rpio.HIGH);
 
-app.use( BodyParser.json() );
+router.use( BodyParser.json() );
+
+// unlock
+router.post('/open', function (request, response) {
+
+  rpio.write(ENV.PIN, rpio.LOW);
+
+  response.writeHead( 200, {
+    'Content-Type' : 'application/json; charset=utf-8'
+  });
+  response.end( JSON.stringify('Open') );
+
+});
+
+// lock
+router.post('/close', function (request, response) {
+
+  rpio.write(ENV.PIN, rpio.HIGH);
+
+  response.writeHead( 200, {
+    'Content-Type' : 'application/json; charset=utf-8'
+  });
+  response.end( JSON.stringify('Close') );
+
+});
 
 // switch lock status
-app.post('/switch', (request, response) => {
+router.post('/switch', function (request, response) {
   const status = rpio.read(ENV.PIN);
   let res = 'yet';
-  let token = request.body.token;
-
-  let isToken = false;
-  for (key in ENV.TOKENS) {
-    if (token === key) {
-      console.log(key);
-      isToken = true;
-      break;
-    }
-  }
-  if (!isToken) {
-    res = 'error';
-    return response.status(404).send(JSON.stringify(res));
-  }
 
   if (status === rpio.HIGH) {
     rpio.write(ENV.PIN, rpio.LOW);
@@ -39,13 +49,25 @@ app.post('/switch', (request, response) => {
     res = 'Close';
   }
 
-  response.status(200).send(JSON.stringify(res));
-  
-  response.set({
+  response.writeHead( 200, {
     'Content-Type' : 'application/json; charset=utf-8'
   });
+  response.end( JSON.stringify(res) );
+
 });
 
-app.listen(ENV.PORT, () => {
-  console.log('API Server is running!');
-});
+// set api server
+const server = Http.createServer(function(request, response) {
+  router( request, response, function( error ) {
+    if ( !error ) {
+      response.writeHead( 404 );
+    } else {
+      // Handle errors
+      console.log( error.message, error.stack );
+      response.writeHead( 400 );
+    }
+    response.end( 'API Server is running!' );
+  });
+})
+
+server.listen(ENV.PORT);
