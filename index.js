@@ -3,6 +3,8 @@ const Http = require('http');
 const BodyParser = require('body-parser');
 const rpio = require('rpio');
 const ENV = require('./env.js');
+const req = require('request');
+const moment = require('moment');
 
 let app = express();
 
@@ -18,9 +20,12 @@ app.post('/switch', (request, response) => {
   let res = 'yet';
   let token = request.body.token;
   let isToken = false;
-  for (keyIndex in ENV.TOKENS) {
-    console.log(ENV.TOKENS[keyIndex]);
-    if (token === ENV.TOKENS[keyIndex]) {
+  let message = request.body.message;
+  let tokenTitle;
+
+  for (TOKEN of ENV.TOKENS) {
+    if (token === TOKEN.token) {
+      token.Title = TOKEN.title;
       isToken = true;
       break;
     }
@@ -30,18 +35,36 @@ app.post('/switch', (request, response) => {
     res = 'error';
     return response.status(400).send(JSON.stringify(res));
   }
+  
+  let act;
 
   if (status === rpio.HIGH) {
     rpio.write(ENV.PIN, rpio.LOW);
     res = 'Open';
+    act = ' 開門';
 
   } else {
     rpio.write(ENV.PIN, rpio.HIGH);
     res = 'Close';
+    act = ' 關門';
   }
+  
+  console.log(act); 
+  req.post({
+    url: ENV.messageURL,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: ENV.botTOKEN
+    },
+    body:JSON.stringify({
+      chat_id: ENV.chat_id,
+      text: `${message}${act}\n${moment().format('YYYY/MM/DD HH:mm:ss')}`,
+      //text: message.concat(act).concat("\n").concat(moment().format('YYYY/MM/DD HH:mm:ss')),
+    })
+  });
 
   response.set({
-    'Content-Type' : 'application/json; charset=utf-8'
+    'Content-Type': 'application/json; charset=utf-8'
   });
   response.status(200).send(JSON.stringify(res));
 

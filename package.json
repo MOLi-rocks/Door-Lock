@@ -12,6 +12,8 @@
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "express-form-data": "^2.0.0",
+    "moment": "^2.18.1",
+    "request": "^2.81.0",
     "router": "1.3.0",
     "rpio": "0.9.16"
   }
