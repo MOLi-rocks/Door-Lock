@@ -59,10 +59,27 @@ app.post('/switch', (request, response) => {
     body:JSON.stringify({
       chat_id: ENV.chat_id,
       text: `${message}${act}\n${moment().format('YYYY/MM/DD HH:mm:ss')}`,
-      //text: message.concat(act).concat("\n").concat(moment().format('YYYY/MM/DD HH:mm:ss')),
     })
   });
 
+  req.get(ENV.adjustCameraURL, function(error, res, body) {
+    //console.log(res);
+
+    req.post({
+      url: ENV.photosURL,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: ENV.botTOKEN
+      },
+      body:JSON.stringify({
+        chat_id: ENV.chat_id,
+        photo: ENV.getCameraURL,
+        disable_notification: true
+      })
+    }, function(error, res, body) {
+      //console.log(res);
+    });
+  });
   response.set({
     'Content-Type': 'application/json; charset=utf-8'
   });
