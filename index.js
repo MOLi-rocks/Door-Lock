@@ -11,8 +11,10 @@ let app = express();
 // set lock's pin. Default is lock
 rpio.open(ENV.PIN, rpio.OUTPUT, rpio.LOW);
 
-app.use(BodyParser.urlencoded({ extended: false }));
-app.use( BodyParser.json() );
+app.use(BodyParser.urlencoded({
+  extended: false
+}));
+app.use(BodyParser.json());
 
 // switch lock status
 app.post('/switch', (request, response) => {
@@ -30,12 +32,12 @@ app.post('/switch', (request, response) => {
       break;
     }
   }
-  
+
   if (!isToken) {
     res = 'error';
     return response.status(400).send(JSON.stringify(res));
   }
-  
+
   let act;
 
   if (status === rpio.HIGH) {
@@ -48,43 +50,42 @@ app.post('/switch', (request, response) => {
     res = 'Close';
     act = ' 關門';
   }
-  
-  console.log(act); 
+
+  console.log(act);
   req.post({
     url: ENV.messageURL,
     headers: {
       'Content-Type': 'application/json',
       Authorization: ENV.botTOKEN
     },
-    body:JSON.stringify({
+    body: JSON.stringify({
       chat_id: ENV.chat_id,
       text: `${message}${act}\n${moment().format('YYYY/MM/DD HH:mm:ss')}`,
     })
-  });
-
-  req.get(ENV.adjustCameraURL, function(error, res, body) {
-    //console.log(res);
-
-    req.post({
-      url: ENV.photosURL,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: ENV.botTOKEN
-      },
-      body:JSON.stringify({
-        chat_id: ENV.chat_id,
-        photo: ENV.getCameraURL,
-        disable_notification: true
-      })
-    }, function(error, res, body) {
-      //console.log(res);
+  }, function (err, httpResponse, messageBody) {
+    req.get(ENV.adjustCameraURL, function (error, res, body) {
+      messageBody = JSON.parse(messageBody);
+      req.post({
+        url: ENV.photosURL,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: ENV.botTOKEN
+        },
+        body: JSON.stringify({
+          chat_id: ENV.chat_id,
+          photo: ENV.getCameraURL,
+          disable_notification: true,
+          reply_to_message_id: messageBody.message_id
+        })
+      }, function (error, res, body) {
+        console.log(body);
+      });
     });
+    response.set({
+      'Content-Type': 'application/json; charset=utf-8'
+    });
+    response.status(200).send(JSON.stringify(res));
   });
-  response.set({
-    'Content-Type': 'application/json; charset=utf-8'
-  });
-  response.status(200).send(JSON.stringify(res));
-
 });
 
 // get status
@@ -92,9 +93,9 @@ app.get('/status', (req, res) => {
   const status = rpio.read(ENV.PIN);
   let msg = null;
   if (status) {
-    msg = "MOLi is close now Φ౪Φ."
+    msg = "MOLi is close now.（ˊ_>ˋ ）"
   } else {
-    msg = "MOLi is open now (=^-ω-^=)."
+    msg = "MOLi is open now. (=^-ω-^=)"
   }
   return res.status(200).json({
     status: status,
@@ -105,4 +106,3 @@ app.get('/status', (req, res) => {
 app.listen(ENV.PORT, () => {
   console.log('API Server is running!');
 });
-
