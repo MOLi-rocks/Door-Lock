@@ -1,3 +1,5 @@
+const ENV = require('./env.json');
+
 // Token verify middleware
 function verifyToken(request, response, next) {
     let token = request.body.token
@@ -5,6 +7,7 @@ function verifyToken(request, response, next) {
         if (token === TYPE.token) {
             request.tokenTitle = TYPE.title;
             next();
+	    return;
         }
     }
     let resMsg = 'Verify error';
