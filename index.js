@@ -1,7 +1,6 @@
 const express = require('express');
 const Http = require('http');
 const BodyParser = require('body-parser');
-const rpio = require('rpio');
 const ENV = require('./env.json');
 const req = require('request');
 const moment = require('moment');

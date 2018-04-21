@@ -1,4 +1,5 @@
 /* GPIO functions */
+const rpio = require('rpio');
 
 function gpioInit(ENV_PINS) {
     /****
