@@ -22,7 +22,7 @@ app.post('/switch', middleware.verifyToken, (request, response) => {
   // switch relay and return action/method/message
   let resultObject = controller.gpioSwitch(ENV.PINS.relay, request.tokenTitle, request.body.message);
   // bind event to detect door really close
-  gpioBindEvent(ENV.PINS.state);
+  controller.gpioBindEvent(ENV.PINS.state);
 
   // send message, adjust camera to door then reply message with camrea photo, if error will throw back information
   // devMode = true, will send full error message
