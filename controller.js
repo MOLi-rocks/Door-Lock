@@ -1,7 +1,6 @@
 /* GPIO functions */
-const rpio = require('rpio');
 
-function gpioInit(ENV_PINS) {
+function gpioInit(rpio, ENV_PINS) {
     /****
         PULL_DOWN = When pin connect with empty will get 0. if you don't use this, the
                     pin will get 0 or 1 in random.
@@ -14,11 +13,11 @@ function gpioInit(ENV_PINS) {
     rpio.open(ENV_PINS.state, rpio.INPUT, rpio.PULL_DOWN);
 }
 
-function gpioRead(PIN) {
+function gpioRead(rpio ,PIN) {
     return rpio.read(PIN);
 }
 
-function gpioSwitch(PIN) {
+function gpioSwitch(rpio, PIN) {
     // read PIN state and can't change
     const readPIN = rpio.read(PIN);
     // action = close/open, method by rfid/button/app

@@ -4,6 +4,7 @@ const BodyParser = require('body-parser');
 const ENV = require('./env.json');
 const req = require('request');
 const moment = require('moment');
+const rpio = require('rpio');
 const middleware = require('./middleware');
 const controller = require('./controller');
 
@@ -15,13 +16,13 @@ app.use(BodyParser.urlencoded({
 app.use(BodyParser.json());
 
 /* GPIO setup */
-controller.gpioInit(ENV);
+controller.gpioInit(rpio, ENV);
 
 /* API */
 // switch lock status
 app.post('/switch', middleware.verifyToken, (request, response) => {
   // switch relay and return action/method/message
-  let resultObject = controller.gpioSwitch(ENV.PINS.relay);
+  let resultObject = controller.gpioSwitch(rpio, ENV.PINS.relay);
 
   req.post({
     url: ENV.messageURL,
@@ -62,13 +63,13 @@ app.post('/switch', middleware.verifyToken, (request, response) => {
 // get status
 app.get('/status', (req, res) => {
   let responseObject = {
-    "status": controller.gpioRead(ENV.PINS.state),
+    "status": controller.gpioRead(rpio, ENV.PINS.state),
     "message": undefined
   };
   // add message to describe door status
   responseObject.message = ( responseObject.status ? "MOLi is close now.（ˊ_>ˋ ）/ " : "MOLi is open now. (=^-ω-^=) / ");
   // add message to tell user if door may lock
-  responseObject.message += ( controller.gpioRead(ENV.PINS.relay) ? "門鎖通電" : "門鎖未通電");
+  responseObject.message += ( controller.gpioRead(rpio, ENV.PINS.relay) ? "門鎖通電" : "門鎖未通電");
 
   return res.status(200).send(responseObject);
 });
