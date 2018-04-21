@@ -18,3 +18,6 @@ $ npm start // will run build script and start
 
 # Lock-API
 // To-do
+
+# Reference
+[rpio package](https://www.npmjs.com/package/rpio)
