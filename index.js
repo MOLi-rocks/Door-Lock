@@ -73,6 +73,14 @@ app.get('/status', (req, res) => {
   return res.status(200).send(responseObject);
 });
 
+process.on('SIGINT', function(){
+  for(PIN of ENV.PINS) {
+    rpio.close(ENV.PINS[PIN]);
+  }
+  console.log('gpio all clean up');
+  process.exit();
+});
+
 app.listen(ENV.PORT, () => {
   console.log('API Server is running!');
 });
