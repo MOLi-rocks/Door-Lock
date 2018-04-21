@@ -42,3 +42,9 @@ function gpioSwitch(PIN) {
 
     return resultObject;
 }
+
+module.exports = {
+    gpioInit,
+    gpioRead,
+    gpioSwitch
+};

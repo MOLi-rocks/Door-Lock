@@ -10,3 +10,7 @@ function verifyToken(request, response, next) {
     let resMsg = 'Verify error';
     return response.status(400).send(JSON.stringify(resMsg));
 }
+
+module.exports = {
+    verifyToken
+};
