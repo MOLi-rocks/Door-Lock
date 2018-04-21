@@ -14,7 +14,7 @@ function gpioInit(ENV_PINS) {
     rpio.open(ENV_PINS.state, rpio.INPUT, rpio.PULL_DOWN);
 }
 
-function gpioRead(rpio ,PIN) {
+function gpioRead(PIN) {
     return rpio.read(PIN);
 }
 
