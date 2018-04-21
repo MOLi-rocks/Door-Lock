@@ -17,7 +17,7 @@ function gpioRead(rpio ,PIN) {
     return rpio.read(PIN);
 }
 
-function gpioSwitch(rpio, PIN) {
+function gpioSwitch(rpio, PIN, tokenTitle, message) {
     // read PIN state and can't change
     const readPIN = rpio.read(PIN);
     // action = close/open, method by rfid/button/app
@@ -37,8 +37,8 @@ function gpioSwitch(rpio, PIN) {
         resultObject.action = '關門';
     }
     // add method and message to object
-    resultObject.method = request.tokenTitle;
-    resultObject.message = request.body.message;
+    resultObject.method = tokenTitle;
+    resultObject.message = message;
 
     return resultObject;
 }
