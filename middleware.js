@@ -3,7 +3,7 @@ const ENV = require('./env.json');
 // Token verify middleware
 function verifyToken(request, response, next) {
     let token = request.body.token
-    for (TYPE of ENV.TOKENS) {
+    for (let TYPE of ENV.TOKENS) {
         if (token === TYPE.token) {
             request.tokenTitle = TYPE.title;
             next();
