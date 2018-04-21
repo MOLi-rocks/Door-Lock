@@ -5,7 +5,7 @@ const ENV = require('./env.json');
 /* GPIO functions */
 
 // initialization gpio
-function gpioInit(ENV_PINS) {
+function gpioInit() {
     /****
         PULL_DOWN = When pin connect with empty will get 0. if you don't use this, the
                     pin will get 0 or 1 in random.
@@ -13,9 +13,11 @@ function gpioInit(ENV_PINS) {
     ****/
 
     // set lock's pin. Default is unlock
-    rpio.open(ENV_PINS.relay, rpio.OUTPUT, rpio.LOW);
+    rpio.open(ENV.PINS.relay, rpio.OUTPUT, rpio.LOW);
     // set state's pin. When door close, the pin will get HIGH.
-    rpio.open(ENV_PINS.state, rpio.INPUT, rpio.PULL_DOWN);
+    rpio.open(ENV.PINS.state, rpio.INPUT, rpio.PULL_DOWN);
+    // bind event to detect door really close
+    gpioBindEvent(ENV.PINS.state);
 }
 
 // read gpio
@@ -57,13 +59,14 @@ function gpioBindEvent(PIN) {
 
 // send message then clean the event
 function gpioDetectClose(PIN) {
-
+    // send message to telegram
+    sendMessage('磁鎖已鎖上');
     // clean the event after send message
     // rpio.poll(PIN, null);
 }
 
-function gpioCleanup(ENV_PINS) {
-    for(PIN of Object.values(ENV_PINS)) {
+function gpioCleanup() {
+    for(PIN of Object.values(ENV.PINS)) {
         rpio.close(PIN);
       }
       console.log('All gpio cleanup');

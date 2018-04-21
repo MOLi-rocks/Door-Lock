@@ -14,7 +14,7 @@ app.use(BodyParser.urlencoded({
 app.use(BodyParser.json());
 
 /* GPIO setup */
-controller.gpioInit(ENV.PINS);
+controller.gpioInit();
 
 /* API */
 // switch lock status
@@ -55,7 +55,7 @@ app.get('/status', (req, res) => {
 
 // reset gpio when terminated
 process.on('SIGINT', function(){
-  controller.gpioCleanup(ENV.PINS);
+  controller.gpioCleanup();
   process.exit();
 });
 
