@@ -86,7 +86,7 @@ function sendMessage(message) {
             })
           }, function (error, response, messageBody) {
               if(error) {
-                reject(ENV.devMode === true ? console.log(err) : console.log('Telegram bot error'));
+                reject(ENV.devMode === true ? err : 'Telegram bot error');
               }
               resolve(messageBody);
           });
@@ -98,7 +98,7 @@ function adjustCamera(messageBody) {
     return new Promise((resolve, reject) => {
         request.get(ENV.adjustCameraURL, function (error, response, body) {
             if(error) {
-                reject(ENV.devMode === true ? console.log(err) : console.log('Adjust camera error'));
+                reject(ENV.devMode === true ? err : 'Adjust camera error');
             }
             resolve(messageBody);
         });
@@ -123,9 +123,9 @@ function replyMessage(messageBody) {
           })
         }, function (error, response, body) {
             if(error) {
-                reject(ENV.devMode === true ? console.log(err) : console.log('Reply message error'));
+                reject(ENV.devMode === true ? err : 'Reply message error');
             }
-            resolve(ENV.devMode === true ? console.log(err) : console.log('Reply message success'));
+            resolve(ENV.devMode === true ? err : 'Reply message success');
         });
     });
 }

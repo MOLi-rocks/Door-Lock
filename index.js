@@ -30,12 +30,12 @@ app.post('/switch', middleware.verifyToken, (request, response) => {
     return controller.replyMessage(messageBody);
   }).then( success => {
     console.log(suceess);
-  }).catch( error => {
-    console.log(error);
     response.set({
       'Content-Type': 'application/json; charset=utf-8'
     });
     return response.status(200).send(JSON.stringify(resultObject.action));
+  }).catch( error => {
+    return response.status(500).send(JSON.stringify(error));
   });
 });
 
