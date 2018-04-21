@@ -42,9 +42,3 @@ function gpioSwitch(PIN) {
 
     return resultObject;
 }
-
-/* API function */
-
-function botPost() {
-
-}
