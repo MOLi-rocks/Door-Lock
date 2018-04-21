@@ -42,6 +42,8 @@ function gpioSwitch(PIN, tokenTitle, message) {
         // Open relay
         rpio.write(PIN, rpio.HIGH);
         resultObject.action = '關門';
+        // bind event to detect the door really close
+        _gpioBindEvent(ENV.PINS.state);
     }
     // add method and message to object
     resultObject.method = tokenTitle;
@@ -51,7 +53,7 @@ function gpioSwitch(PIN, tokenTitle, message) {
 }
 
 // bind event for wait door really close
-function gpioBindEvent(PIN) {
+function _gpioBindEvent(PIN) {
     rpio.poll(PIN, _gpioDetectClose, rpio.POLL_HIGH);
 }
 
@@ -136,7 +138,6 @@ module.exports = {
     gpioInit,
     gpioRead,
     gpioSwitch,
-    gpioBindEvent,
     gpioCleanup,
     sendMessage,
     adjustCamera,
