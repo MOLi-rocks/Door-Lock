@@ -16,13 +16,13 @@ app.use(BodyParser.urlencoded({
 app.use(BodyParser.json());
 
 /* GPIO setup */
-controller.gpioInit(rpio, ENV);
+controller.gpioInit(rpio, ENV.PINS);
 
 /* API */
 // switch lock status
 app.post('/switch', middleware.verifyToken, (request, response) => {
   // switch relay and return action/method/message
-  let resultObject = controller.gpioSwitch(rpio, ENV.PINS.relay);
+  let resultObject = controller.gpioSwitch(rpio, ENV.PINS.relay, request.tokenTitle, request.body.message);
 
   req.post({
     url: ENV.messageURL,
@@ -56,7 +56,7 @@ app.post('/switch', middleware.verifyToken, (request, response) => {
     response.set({
       'Content-Type': 'application/json; charset=utf-8'
     });
-    response.status(200).send(JSON.stringify(res));
+    response.status(200).send(JSON.stringify(resultObject.action));
   });
 });
 
