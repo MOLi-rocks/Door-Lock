@@ -23,39 +23,20 @@ app.post('/switch', middleware.verifyToken, (request, response) => {
   // switch relay and return action/method/message
   let resultObject = controller.gpioSwitch(ENV.PINS.relay, request.tokenTitle, request.body.message);
 
-  req.post({
-    url: ENV.messageURL,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: ENV.botTOKEN
-    },
-    body: JSON.stringify({
-      chat_id: ENV.chat_id,
-      text: `${resultObject.message}${resultObject.action}\n${moment().format('YYYY/MM/DD HH:mm:ss')}`,
-    })
-  }, function (err, httpResponse, messageBody) {
-    req.get(ENV.adjustCameraURL, function (error, res, body) {
-      messageBody = JSON.parse(messageBody);
-      req.post({
-        url: ENV.photosURL,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: ENV.botTOKEN
-        },
-        body: JSON.stringify({
-          chat_id: ENV.chat_id,
-          photo: ENV.getCameraURL,
-          disable_notification: true,
-          reply_to_message_id: messageBody.message_id
-        })
-      }, function (error, res, body) {
-        console.log(body);
-      });
-    });
+  // send message, adjust camera to door then reply message with camrea photo, if error will throw back information
+  // devMode = true, will send full error message
+  controller.sendMessage(`${resultObject.message}${resultObject.action}\n${moment().format('YYYY/MM/DD HH:mm:ss')}`).then( messageBody => {
+    return controller.adjustCamera(messageBody);
+  }).then( messageBody => {
+    return controller.replyMessage(messageBody);
+  }).then( success => {
+    console.log(suceess);
+  }).catch( error => {
+    console.log(error);
     response.set({
       'Content-Type': 'application/json; charset=utf-8'
     });
-    response.status(200).send(JSON.stringify(resultObject.action));
+    return response.status(200).send(JSON.stringify(resultObject.action));
   });
 });
 
@@ -73,6 +54,7 @@ app.get('/status', (req, res) => {
   return res.status(200).send(responseObject);
 });
 
+// reset gpio when terminated
 process.on('SIGINT', function(){
   controller.gpioCleanup(ENV.PINS);
   process.exit();
