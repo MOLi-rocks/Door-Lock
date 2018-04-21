@@ -87,7 +87,7 @@ function sendMessage(message) {
             })
           }, function (error, response, messageBody) {
               if(error) {
-                reject(ENV.devMode === true ? err : 'Telegram bot error');
+                reject(ENV.devMode === true ? error : 'Telegram bot error');
               }
               resolve(messageBody);
           });
@@ -99,7 +99,7 @@ function adjustCamera(messageBody) {
     return new Promise((resolve, reject) => {
         request.get(ENV.adjustCameraURL, function (error, response, body) {
             if(error) {
-                reject(ENV.devMode === true ? err : 'Adjust camera error');
+                reject(ENV.devMode === true ? error : 'Adjust camera error');
             }
             resolve(messageBody);
         });
@@ -123,10 +123,10 @@ function replyMessage(messageBody) {
             reply_to_message_id: messageBody.message_id
           })
         }, function (error, response, body) {
-            if(error) {
-                reject(ENV.devMode === true ? err : 'Reply message error');
+	    if(error) {
+                reject(ENV.devMode === true ? error : 'Reply message error');
             }
-            resolve(ENV.devMode === true ? err : 'Reply message success');
+            resolve('Reply message success');
         });
     });
 }
