@@ -74,8 +74,8 @@ app.get('/status', (req, res) => {
 });
 
 process.on('SIGINT', function(){
-  for(PIN of ENV.PINS) {
-    rpio.close(ENV.PINS[PIN]);
+  for(PIN of Object.values(ENV.PINS)) {
+    rpio.close(PIN);
   }
   console.log('gpio all clean up');
   process.exit();
