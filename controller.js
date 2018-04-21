@@ -16,8 +16,6 @@ function gpioInit() {
     rpio.open(ENV.PINS.relay, rpio.OUTPUT, rpio.LOW);
     // set state's pin. When door close, the pin will get HIGH.
     rpio.open(ENV.PINS.state, rpio.INPUT, rpio.PULL_DOWN);
-    // bind event to detect door really close
-    gpioBindEvent(ENV.PINS.state);
 }
 
 // read gpio
@@ -62,7 +60,7 @@ function gpioDetectClose(PIN) {
     // send message to telegram
     sendMessage('磁鎖已鎖上');
     // clean the event after send message
-    // rpio.poll(PIN, null);
+    rpio.poll(PIN, null);
 }
 
 function gpioCleanup() {
