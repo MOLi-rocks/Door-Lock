@@ -33,6 +33,8 @@ app.post('/switch', middleware.verifyToken, (request, response) => {
   }).catch( error => {
     console.log(error);
   });
+
+  // response without waiting for promise.
   response.set({
     'Content-Type': 'application/json; charset=utf-8'
   });
