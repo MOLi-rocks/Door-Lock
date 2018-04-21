@@ -16,6 +16,8 @@ function gpioInit() {
     rpio.open(ENV.PINS.relay, rpio.OUTPUT, rpio.LOW);
     // set state's pin. When door close, the pin will get HIGH.
     rpio.open(ENV.PINS.state, rpio.INPUT, rpio.PULL_DOWN);
+    // bind event to detect the door really close
+    _gpioBindEvent(ENV.PINS.state);
 }
 
 // read gpio
@@ -42,8 +44,6 @@ function gpioSwitch(PIN, tokenTitle, message) {
         // Open relay
         rpio.write(PIN, rpio.HIGH);
         resultObject.action = '關門';
-        // bind event to detect the door really close
-        _gpioBindEvent(ENV.PINS.state);
     }
     // add method and message to object
     resultObject.method = tokenTitle;
