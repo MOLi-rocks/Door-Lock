@@ -2,56 +2,28 @@ const express = require('express');
 const Http = require('http');
 const BodyParser = require('body-parser');
 const rpio = require('rpio');
-const ENV = require('./env.js');
+const ENV = require('./env.json');
 const req = require('request');
 const moment = require('moment');
+const middleware = require('./middleware');
+const controller = require('./controller');
 
 let app = express();
-
-// set lock's pin. Default is lock
-rpio.open(ENV.PIN, rpio.OUTPUT, rpio.LOW);
 
 app.use(BodyParser.urlencoded({
   extended: false
 }));
 app.use(BodyParser.json());
 
+/* GPIO setup */
+controller.gpioInit(ENV);
+
+/* API */
 // switch lock status
-app.post('/switch', (request, response) => {
-  const status = rpio.read(ENV.PIN);
-  let res = 'yet';
-  let token = request.body.token;
-  let isToken = false;
-  let message = request.body.message;
-  let tokenTitle;
+app.post('/switch', middleware.verifyToken, (request, response) => {
+  // switch relay and return action/method/message
+  let resultObject = controller.gpioSwitch(ENV.PINS.relay);
 
-  for (TOKEN of ENV.TOKENS) {
-    if (token === TOKEN.token) {
-      token.Title = TOKEN.title;
-      isToken = true;
-      break;
-    }
-  }
-
-  if (!isToken) {
-    res = 'error';
-    return response.status(400).send(JSON.stringify(res));
-  }
-
-  let act;
-
-  if (status === rpio.HIGH) {
-    rpio.write(ENV.PIN, rpio.LOW);
-    res = 'Open';
-    act = ' 開門';
-
-  } else {
-    rpio.write(ENV.PIN, rpio.HIGH);
-    res = 'Close';
-    act = ' 關門';
-  }
-
-  console.log(act);
   req.post({
     url: ENV.messageURL,
     headers: {
@@ -60,7 +32,7 @@ app.post('/switch', (request, response) => {
     },
     body: JSON.stringify({
       chat_id: ENV.chat_id,
-      text: `${message}${act}\n${moment().format('YYYY/MM/DD HH:mm:ss')}`,
+      text: `${resultObject.message}${resultObject.action}\n${moment().format('YYYY/MM/DD HH:mm:ss')}`,
     })
   }, function (err, httpResponse, messageBody) {
     req.get(ENV.adjustCameraURL, function (error, res, body) {
@@ -90,17 +62,16 @@ app.post('/switch', (request, response) => {
 
 // get status
 app.get('/status', (req, res) => {
-  const status = rpio.read(ENV.PIN);
-  let msg = null;
-  if (status) {
-    msg = "MOLi is close now.（ˊ_>ˋ ）"
-  } else {
-    msg = "MOLi is open now. (=^-ω-^=)"
-  }
-  return res.status(200).json({
-    status: status,
-    message: msg
-  });
+  let responseObject = {
+    "status": controller.gpioRead(ENV.PINS.state),
+    "message": undefined
+  };
+  // add message to describe door status
+  responseObject.message = ( responseObject.status ? "MOLi is close now.（ˊ_>ˋ ）/ " : "MOLi is open now. (=^-ω-^=) / ");
+  // add message to tell user if door may lock
+  responseObject.message += ( controller.gpioRead(ENV.PINS.relay) ? "門鎖通電" : "門鎖未通電");
+
+  return res.status(200).send(responseObject);
 });
 
 app.listen(ENV.PORT, () => {
