@@ -44,8 +44,16 @@ function gpioSwitch(PIN, tokenTitle, message) {
     return resultObject;
 }
 
+function gpioCleanup(ENV_PINS) {
+    for(PIN of Object.values(ENV_PINS)) {
+        rpio.close(PIN);
+      }
+      console.log('All gpio cleanup');
+}
+
 module.exports = {
     gpioInit,
     gpioRead,
-    gpioSwitch
+    gpioSwitch,
+    gpioCleanup
 };
