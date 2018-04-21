@@ -2,7 +2,6 @@ const express = require('express');
 const Http = require('http');
 const BodyParser = require('body-parser');
 const ENV = require('./env.json');
-const req = require('request');
 const moment = require('moment');
 const middleware = require('./middleware');
 const controller = require('./controller');

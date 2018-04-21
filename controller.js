@@ -1,4 +1,5 @@
 const rpio = require('rpio');
+const request = require('request');
 const ENV = require('./env.json');
 
 /* GPIO functions */
@@ -73,7 +74,7 @@ function gpioCleanup(ENV_PINS) {
 // send door state message to telegram
 function sendMessage(message) {
     return new Promise((resolve, reject) => {
-        req.post({
+        request.post({
             url: ENV.messageURL,
             headers: {
               'Content-Type': 'application/json',
@@ -95,7 +96,7 @@ function sendMessage(message) {
 // adjust camera
 function adjustCamera(messageBody) {
     return new Promise((resolve, reject) => {
-        req.get(ENV.adjustCameraURL, function (error, response, body) {
+        request.get(ENV.adjustCameraURL, function (error, response, body) {
             if(error) {
                 reject(ENV.devMode === true ? console.log(err) : console.log('Adjust camera error'));
             }
@@ -108,7 +109,7 @@ function adjustCamera(messageBody) {
 function replyMessage(messageBody) {
     return new Promise((resolve, reject) => {
         messageBody = JSON.parse(messageBody);
-        req.post({
+        request.post({
           url: ENV.photosURL,
           headers: {
             'Content-Type': 'application/json',
