@@ -85,7 +85,7 @@ function sendMessage(message) {
               text: message,
             })
           }, function (error, response, messageBody) {
-              if(errpr) {
+              if(error) {
                 reject(ENV.devMode === true ? console.log(err) : console.log('Telegram bot error'));
               }
               resolve(messageBody);
