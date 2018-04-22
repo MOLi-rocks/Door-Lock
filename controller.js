@@ -54,7 +54,7 @@ function gpioSwitch(PIN, tokenTitle, message) {
 
 // bind event for wait door really close
 function _gpioBindEvent(PIN) {
-    rpio.poll(PIN, _gpioDetectClose, rpio.POLL_LOW);
+    rpio.poll(PIN, _gpioDetectClose, rpio.POLL_HIGH);
 }
 
 // send message then clean the event
@@ -62,7 +62,7 @@ function _gpioDetectClose(PIN) {
     // send message to telegram
     sendMessage('磁鎖已鎖上');
     // clean the event after send message
-    rpio.poll(PIN, null);
+    // rpio.poll(PIN, null);
 }
 
 function gpioCleanup() {
