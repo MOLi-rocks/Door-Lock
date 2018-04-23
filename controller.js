@@ -2,6 +2,8 @@ const rpio = require('rpio');
 const request = require('request');
 const ENV = require('./env.json');
 
+var reduceGPIO = true;
+
 /* GPIO functions */
 
 // initialization gpio
@@ -41,6 +43,7 @@ function gpioSwitch(PIN, tokenTitle, message) {
         rpio.write(PIN, rpio.LOW);
         resultObject.action = '開門';
     } else {
+	reduceGPIO = false;
         // Open relay
         rpio.write(PIN, rpio.HIGH);
         resultObject.action = '關門';
@@ -59,8 +62,11 @@ function _gpioBindEvent(PIN) {
 
 // send message then clean the event
 function _gpioDetectClose(PIN) {
-    // send message to telegram
-    sendMessage('磁鎖已鎖上');
+    if(reduceGPIO == false) {
+        // send message to telegram
+        sendMessage('磁鎖已鎖上');
+        reduceGPIO = true;
+    }
     // clean the event after send message
     // rpio.poll(PIN, null);
 }
