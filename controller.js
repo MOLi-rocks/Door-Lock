@@ -73,7 +73,11 @@ function gpioSwitch(PIN, tokenTitle, message) {
         reduceGPIO = false;
         // let red led blink
         doorClosed = false;
-        doorCloseLED();
+        doorCloseLED().then(success =>{
+            console.log('Door close');
+        }).catch(failed => {
+            console.log('Door not close')
+        });
         // Open relay
         rpio.write(PIN, rpio.HIGH);
         resultObject.action = '關門';
