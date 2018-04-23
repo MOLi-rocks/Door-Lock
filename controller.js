@@ -2,6 +2,7 @@ const rpio = require('rpio');
 const request = require('request');
 const ENV = require('./env.json');
 
+// avoid send really close message too many times, GPIO poll_HIGH may detect many times when change to HIGH
 var reduceGPIO = true;
 
 /* GPIO functions */
@@ -43,7 +44,8 @@ function gpioSwitch(PIN, tokenTitle, message) {
         rpio.write(PIN, rpio.LOW);
         resultObject.action = '開門';
     } else {
-	reduceGPIO = false;
+        // Set to false allow send message
+        reduceGPIO = false;
         // Open relay
         rpio.write(PIN, rpio.HIGH);
         resultObject.action = '關門';
@@ -62,6 +64,7 @@ function _gpioBindEvent(PIN) {
 
 // send message then clean the event
 function _gpioDetectClose(PIN) {
+    // when not in reduce mode, it will send message for door closed
     if(reduceGPIO == false) {
         // send message to telegram
         sendMessage('磁鎖已鎖上');
