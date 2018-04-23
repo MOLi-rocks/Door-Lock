@@ -4,8 +4,6 @@ const ENV = require('./env.json');
 
 // avoid send really close message too many times, GPIO poll_HIGH may detect many times when change to HIGH
 var reduceGPIO = true;
-// when door not really close, make it flash
-var doorClosed = false;
 
 /* GPIO functions */
 
@@ -32,25 +30,6 @@ function gpioRead(PIN) {
     return rpio.read(PIN);
 }
 
-// blink red led
-function doorCloseLED() {
-    return new Promise((resolve, reject) => {
-        let timeout = 0;
-        while(doorClosed == false && timeout <= 15) {
-            rpio.write(ENV.PINS.led_red, rpio.HIGH);
-            rpio.sleep(1);
-            rpio.write(ENV.PINS.led_red, rpio.LOW);
-            rpio.sleep(1);
-            timeout += 1;
-        }
-        if(timeout > 15 && doorClosed == false) {
-            reject(false);
-        } else {
-            resolve(true);
-        }
-    });
-}
-
 // switch gpio state and return action/method/message object
 function gpioSwitch(PIN, tokenTitle, message) {
     // read PIN state and can't change
@@ -71,13 +50,6 @@ function gpioSwitch(PIN, tokenTitle, message) {
     } else {
         // Set to false allow send message
         reduceGPIO = false;
-        // let red led blink
-        doorClosed = false;
-        doorCloseLED().then(success =>{
-            console.log('Door close');
-        }).catch(failed => {
-            console.log('Door not close')
-        });
         // Open relay
         rpio.write(PIN, rpio.HIGH);
         resultObject.action = '關門';
