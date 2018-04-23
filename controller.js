@@ -34,12 +34,21 @@ function gpioRead(PIN) {
 
 // blink red led
 function doorCloseLED() {
-    while (doorClosed == false) {
-        rpio.write(ENV.PINS.led_red, rpio.HIGH);
-        rpio.sleep(1);
-        rpio.write(ENV.PINS.led_red, rpio.LOW);
-        rpio.sleep(1);
-    }
+    return new Promise((resolve, reject) => {
+        let timeout = 0;
+        while(doorClosed == false && timeout <= 15) {
+            rpio.write(ENV.PINS.led_red, rpio.HIGH);
+            rpio.sleep(1);
+            rpio.write(ENV.PINS.led_red, rpio.LOW);
+            rpio.sleep(1);
+            timeout += 1;
+        }
+        if(timeout > 15 && doorClosed == false) {
+            reject(false);
+        } else {
+            resolve(true);
+        }
+    });
 }
 
 // switch gpio state and return action/method/message object
