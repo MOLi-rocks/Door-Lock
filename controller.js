@@ -4,6 +4,8 @@ const ENV = require('./env.json');
 
 // avoid send really close message too many times, GPIO poll_HIGH may detect many times when change to HIGH
 var reduceGPIO = true;
+// control led blink
+var doorClosed = false;
 
 /* GPIO functions */
 
@@ -30,6 +32,23 @@ function gpioRead(PIN) {
     return rpio.read(PIN);
 }
 
+// door wait for close's led blink
+function blink_led() {
+    setTimeout(function(){
+        rpio.write(ENV.PINS.led_red, rpio.HIGH);
+        rpio.msleep(500);
+        pio.write(ENV.PINS.led_red, rpio.LOW);
+        if(doorClosed == true) {
+            // if closed let it still light
+            rpio.write(ENV.PINS.led_red, rpio.HIGH);
+            // reset doorClosed status
+            doorClosed == false;
+        } else {
+            blink_led();
+        }
+    }, 500);
+}
+
 // switch gpio state and return action/method/message object
 function gpioSwitch(PIN, tokenTitle, message) {
     // read PIN state and can't change
@@ -50,6 +69,8 @@ function gpioSwitch(PIN, tokenTitle, message) {
     } else {
         // Set to false allow send message
         reduceGPIO = false;
+        // let led blink before door really closed
+        blink_led();
         // Open relay
         rpio.write(PIN, rpio.HIGH);
         resultObject.action = '關門';
@@ -72,7 +93,6 @@ function _gpioDetectClose(PIN) {
     if(reduceGPIO == false) {
         // let red led light
         doorClosed = true;
-        rpio.write(ENV.PINS.led_red, rpio.HIGH);
         // send message to telegram
         sendMessage('磁鎖已鎖上');
         reduceGPIO = true;
