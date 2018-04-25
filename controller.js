@@ -19,8 +19,10 @@ function gpioInit() {
 
     // set lock's pin. Default is unlock
     rpio.open(ENV.PINS.relay, rpio.OUTPUT, rpio.LOW);
-    // set red led dark
+    // set red led pin and let it dark
     rpio.open(ENV.PINS.led_red, rpio.OUTPUT, rpio.LOW);
+    // set green led pin and let it bright
+    rpio.open(ENV.PINS.led_green, rpio.OUTPUT, rpio.HIGH);
     // set state's pin. When door close, the pin will get HIGH.
     rpio.open(ENV.PINS.state, rpio.INPUT, rpio.PULL_DOWN);
     // bind event to detect the door really close
@@ -38,9 +40,9 @@ function blink_led() {
         rpio.write(ENV.PINS.led_red, rpio.HIGH);
         rpio.msleep(500);
         rpio.write(ENV.PINS.led_red, rpio.LOW);
-	rpio.msleep(250);
+        rpio.msleep(250);
         if(doorClosed == true) {
-            // if closed let it still light
+            // if closed let it still bright
             rpio.write(ENV.PINS.led_red, rpio.HIGH);
         } else {
             blink_led();
@@ -62,14 +64,17 @@ function gpioSwitch(PIN, tokenTitle, message) {
     if (readPIN === rpio.HIGH) {
         // Close relay
         rpio.write(PIN, rpio.LOW);
-        // let red led dark
+        // let red led dark and let green led bright
         rpio.write(ENV.PINS.led_red, rpio.LOW);
-	// reset doorClosed
-	doorClosed = false;
+        rpio.write(ENV.PINS.led_green, rpio.HIGH);
+        // reset doorClosed
+        doorClosed = false;
         resultObject.action = '開門';
     } else {
         // Set to false allow send message
         reduceGPIO = false;
+        // let green led dark
+        rpio.write(ENV.PINS.led_green, rpio.LOW);
         // let led blink before door really closed
         blink_led();
         // Open relay
@@ -92,7 +97,7 @@ function _gpioBindEvent(PIN) {
 function _gpioDetectClose(PIN) {
     // when not in reduce mode, it will send message for door closed
     if(reduceGPIO == false) {
-        // let red led light
+        // let red led bright
         doorClosed = true;
         // send message to telegram
         sendMessage('磁鎖已鎖上');
