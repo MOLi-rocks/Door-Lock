@@ -37,16 +37,15 @@ function blink_led() {
     setTimeout(function(){
         rpio.write(ENV.PINS.led_red, rpio.HIGH);
         rpio.msleep(500);
-        pio.write(ENV.PINS.led_red, rpio.LOW);
+        rpio.write(ENV.PINS.led_red, rpio.LOW);
+	rpio.msleep(250);
         if(doorClosed == true) {
             // if closed let it still light
             rpio.write(ENV.PINS.led_red, rpio.HIGH);
-            // reset doorClosed status
-            doorClosed == false;
         } else {
             blink_led();
         }
-    }, 500);
+    }, 750);
 }
 
 // switch gpio state and return action/method/message object
@@ -65,6 +64,8 @@ function gpioSwitch(PIN, tokenTitle, message) {
         rpio.write(PIN, rpio.LOW);
         // let red led dark
         rpio.write(ENV.PINS.led_red, rpio.LOW);
+	// reset doorClosed
+	doorClosed = false;
         resultObject.action = '開門';
     } else {
         // Set to false allow send message
