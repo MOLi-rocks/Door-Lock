@@ -6,6 +6,8 @@ const ENV = require('./env.json');
 var reduceGPIO = true;
 // control led blink
 var doorClosed = false;
+//
+var blinkState = false;
 
 /* GPIO functions */
 
@@ -36,18 +38,14 @@ function gpioRead(PIN) {
 
 // door wait for close's led blink
 function blink_led() {
-    setTimeout(function(){
+    rpio.write(ENV.PINS.led_red, blinkState ? rpio.LOW : rpio.HIGH);
+    blinkState = !blinkState;
+    if(doorClosed == true) {
+        // if closed let it still bright
         rpio.write(ENV.PINS.led_red, rpio.HIGH);
-        rpio.msleep(500);
-        rpio.write(ENV.PINS.led_red, rpio.LOW);
-        rpio.msleep(250);
-        if(doorClosed == true) {
-            // if closed let it still bright
-            rpio.write(ENV.PINS.led_red, rpio.HIGH);
-        } else {
-            blink_led();
-        }
-    }, 750);
+    } else {
+        setTimeout(blink_led, 400);
+    }
 }
 
 // switch gpio state and return action/method/message object
